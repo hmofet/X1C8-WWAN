@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X1 Carbon Gen 8 WWAN Install</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --ink:#1c1b19; --muted:#6b6963; --line:#dedbd4;
+  --accent:#c8102e; --ok:#1f7a4d; --warn-bg:#fff4d6; --warn-line:#e0b84a; --stop-bg:#fde8e8; --stop-line:#d46a6a;
+  --chip:#efece5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151513; --card:#1e1d1b; --ink:#ecebe6; --muted:#a09d95; --line:#33322e;
+    --accent:#ff5468; --ok:#5ccf98; --warn-bg:#332b12; --warn-line:#8a6d1c; --stop-bg:#341a1a; --stop-line:#8a3a3a; --chip:#2a2926;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151513; --card:#1e1d1b; --ink:#ecebe6; --muted:#a09d95; --line:#33322e;
+  --accent:#ff5468; --ok:#5ccf98; --warn-bg:#332b12; --warn-line:#8a6d1c; --stop-bg:#341a1a; --stop-line:#8a3a3a; --chip:#2a2926;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
+header{padding:28px 0 8px}
+.eyebrow{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(26px,5vw,36px);line-height:1.15;margin:6px 0 10px}
+.lede{color:var(--muted);margin:0 0 16px;max-width:60ch}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+.bar-row{display:flex;gap:12px;align-items:center}
+.track{flex:1;height:8px;background:var(--chip);border-radius:99px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--ok);transition:width .25s}
+.count{font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted);min-width:64px;text-align:right}
+button.ghost{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer}
+button.ghost:hover{color:var(--ink)}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+nav.toc a{font-size:13px;background:var(--chip);color:var(--ink);text-decoration:none;border-radius:99px;padding:5px 12px}
+nav.toc a:hover{outline:1px solid var(--accent)}
+section{margin:0 0 34px}
+h2{font-size:22px;margin:0 0 4px;display:flex;gap:10px;align-items:baseline}
+h2 .n{color:var(--accent);font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 12px;display:grid;grid-template-columns:28px 1fr;gap:12px}
+.step.done{opacity:.55}
+.step input[type=checkbox]{width:22px;height:22px;margin:2px 0 0;accent-color:var(--ok);cursor:pointer}
+.step h3{font-size:16.5px;margin:0 0 4px}
+.step p{margin:4px 0}
+.step ul{margin:6px 0 4px;padding-left:20px}
+.step li{margin:2px 0}
+figure{margin:10px 0 4px}
+figure img{width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:zoom-in;display:block}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:4px}
+.callout{border-radius:10px;padding:9px 12px;margin:10px 0 2px;font-size:14.5px;border:1px solid}
+.callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.callout.stop{background:var(--stop-bg);border-color:var(--stop-line)}
+.callout b:first-child{margin-right:4px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+th,td{text-align:left;border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+.tag{display:inline-block;font-size:11.5px;border-radius:6px;padding:1px 7px;background:var(--chip);color:var(--muted);vertical-align:1px}
+.tag.gen{border:1px dashed var(--muted)}
+.ref{font-size:12.5px;color:var(--muted);margin-top:6px}
+.ref a{color:var(--accent)}
+.note{color:var(--muted);font-size:13.5px}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:20;padding:12px;cursor:zoom-out}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:480px){.step{grid-template-columns:24px 1fr;padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">ThinkPad X1 Carbon Gen 8 · types 20U9 / 20UA</div>
+  <h1>Install WWAN antennas + cellular modem</h1>
+  <p class="lede">Follows Lenovo's Hardware Maintenance Manual (X1 Yoga Gen 5 / X1 Carbon Gen 8). Screw sizes, torque and the orange/blue cable rule come straight from the manual. Items tagged <span class="tag gen">general</span> are ordinary good practice, not from the manual.</p>
+</header>
+
+<div class="bar">
+  <div class="bar-row">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="count" id="count">0 / 0</div>
+    <button class="ghost" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#prep">1 · Prep</a><a href="#open">2 · Open up</a><a href="#ant">3 · Antennas</a><a href="#modem">4 · Modem</a><a href="#close">5 · Close up</a><a href="#check">6 · Verify</a><a href="#ref">Reference</a>
+</nav>
+
+<section id="prep">
+  <h2><span class="n">1</span>Prep</h2>
+  <p class="sub">Manual p. 69–70</p>
+
+  <div class="step"><input type="checkbox" id="s1"><div>
+    <h3>Gather parts and tools</h3>
+    <ul>
+      <li>WWAN antenna kit (it comes with its cables, including the P-sensor cable) and your cellular modem card.</li>
+      <li>Small Phillips driver for the M1.6 / M2 screws, plus a plastic pry tool. <span class="tag gen">general</span></li>
+      <li>A tray or muffin tin: <b>the screws are different sizes</b>, so keep them sorted by step. <span class="tag gen">general</span></li>
+    </ul>
+    <div class="callout warn"><b>Check first.</b> Confirm the modem is one Lenovo supports in this machine. The BIOS can reject unsupported cards. Also check whether antenna cables are already installed in your unit before buying more.</div>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s2"><div>
+    <h3>Remove external devices and the SIM</h3>
+    <p>Unplug the charger, dock, external display and any microSD card. If a nano-SIM is in the tray, eject it with a pin now.</p>
+    <figure><img src="img/sim.png" alt="Ejecting the nano-SIM tray" loading="lazy"><figcaption>Manual p. 70: 1 insert pin, 2 pull tray, 3 lift SIM out.</figcaption></figure>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s3"><div>
+    <h3>Disable Fast Startup in Windows</h3>
+    <ul>
+      <li>Control Panel → view by Large icons → <b>Power Options</b> → <b>Choose what the power buttons do</b>.</li>
+      <li>Click <b>Change settings that are currently unavailable</b> (accept UAC).</li>
+      <li>Clear <b>Turn on fast startup</b> → <b>Save changes</b>.</li>
+    </ul>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s4"><div>
+    <h3>Disable the built-in battery</h3>
+    <ul>
+      <li>Restart and press <b>F1</b> at the logo to enter ThinkPad Setup.</li>
+      <li><b>Config → Power → Disable built-in battery</b>, Enter, then <b>Yes</b>.</li>
+      <li>The laptop shuts off. <b>Wait 3–5 minutes.</b></li>
+    </ul>
+    <div class="callout stop"><b>Do not skip this.</b> Otherwise the battery stays live while you work on the board.</div>
+  </div></div>
+</section>
+
+<section id="open">
+  <h2><span class="n">2</span>Open it up</h2>
+  <p class="sub">Manual p. 72 (base cover), p. 76 (battery)</p>
+
+  <div class="step"><input type="checkbox" id="s5"><div>
+    <h3>Remove the base cover</h3>
+    <p>Lay the laptop upside down with the hinges away from you. Loosen the <b>5 captive screws</b> (step 1), then lift the cover up from the edges near the hinges (arrows 2).</p>
+    <figure><img src="img/base.png" alt="Base cover removal, X1 Carbon Gen 8" loading="lazy"><figcaption>Manual p. 72, X1 Carbon Gen 8 version. Use this one, not the Yoga figure on p. 71.</figcaption></figure>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s6"><div>
+    <h3>Unplug the battery</h3>
+    <p>Peel back the tape flap (1), then pull the battery connector straight off its socket (2). The connector is in the upper-middle of the battery edge.</p>
+    <figure><img src="img/batt1.png" alt="Disconnecting the battery cable" loading="lazy"><figcaption>Manual p. 76, steps 1–2.</figcaption></figure>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s7"><div>
+    <h3>Remove the battery</h3>
+    <p>Remove <b>6 screws</b>, then lift the battery out (4).</p>
+    <table>
+      <tr><th>Screws</th><th>Type</th><th>Color</th><th>Torque</th></tr>
+      <tr><td>6</td><td>M2 × L4.5 mm, flat-head, nylon-coated</td><td>Silver</td><td>0.181 Nm (1.85 kgf-cm)</td></tr>
+    </table>
+    <figure><img src="img/batt2.png" alt="Battery screws and lift-out" loading="lazy"><figcaption>Manual p. 76, steps 3–4. Antennas cannot be reached until the battery is out.</figcaption></figure>
+  </div></div>
+</section>
+
+<section id="ant">
+  <h2><span class="n">3</span>Install the antennas</h2>
+  <p class="sub">Manual p. 83–84. The manual shows removal. Installation is the same steps in reverse.</p>
+
+  <div class="callout warn" style="margin-bottom:12px"><b>Read before you start.</b> The manual's figure below is labeled for <i>removal</i>, in the order 1 → 5. To install, work <b>5 → 1</b> (seat the antennas, then route, screw down, connect).</div>
+
+  <div class="step"><input type="checkbox" id="s8"><div>
+    <h3>Study the figure</h3>
+    <figure><img src="img/ant.png" alt="WWAN antenna assembly screws and connectors" loading="lazy"><figcaption>Manual p. 83. 1 = four M2 screws, 2 = three M1.6 screws, 3 = the two cables at the modem, 4 = the multi-pin connector near the lower-right.</figcaption></figure>
+    <table>
+      <tr><th>Step</th><th>Screws</th><th>Type</th><th>Color</th><th>Torque</th></tr>
+      <tr><td>1</td><td>4</td><td>M2 × L3.2 mm, flat-head, nylon-coated</td><td>Silver</td><td>0.181 Nm</td></tr>
+      <tr><td>2</td><td>3</td><td>M1.6 × L2.6 mm, flat-head, nylon-coated</td><td>Silver</td><td>0.181 Nm</td></tr>
+    </table>
+    <p class="note">The M1.6 screws are the small ones. Keep them apart from the M2s.</p>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s9"><div>
+    <h3>Seat the two antenna modules and route the cables</h3>
+    <p>One antenna module sits at the upper-left edge and the other at the lower-right, near the ports. Set each into its pocket (step 5 in the figure), then run the cable along the front edge through the guides.</p>
+    <figure><img src="img/route.png" alt="Antenna module positions and cable route" loading="lazy"><figcaption>Manual p. 84, arrows 5 point at the two modules. The cables run along the front edge to the modem area.</figcaption></figure>
+    <div class="callout warn"><b>No tension.</b> Cables must not be pulled tight. Tension can damage them against the cable guides or break a wire. Press each cable fully into its guides.</div>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s10"><div>
+    <h3>Fasten the antenna screws</h3>
+    <p>Install the <b>4 × M2 × L3.2</b> (step 1) and <b>3 × M1.6 × L2.6</b> (step 2) screws where the figure shows them. Snug only. Torque is 0.181 Nm, which is very light.</p>
+    <div class="callout warn"><b>No screw holes?</b> On a unit built without WWAN the chassis may lack these screw bosses, along with the SIM tray. Don't force screws or drill. See the project README for what we found.</div>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s11"><div>
+    <h3>Connect the multi-pin connector (step 4)</h3>
+    <p>Plug in the connector shown as step 4 on p. 83. The manual says the antenna assembly comes with the P-sensor cable, which goes to the P-sensor connector on the board.</p>
+  </div></div>
+</section>
+
+<section id="modem">
+  <h2><span class="n">4</span>Install the cellular modem</h2>
+  <p class="sub">Manual p. 74. Again shown as removal, so reverse it.</p>
+
+  <div class="step"><input type="checkbox" id="s12"><div>
+    <h3>Seat the card</h3>
+    <p>The WWAN slot is near the right end, beside the SSD area. Push the card into the M.2 slot (reverse of removal step 3), lay it flat over the standoff, and fasten one screw.</p>
+    <figure><img src="img/card.png" alt="WWAN card removal steps" loading="lazy"><figcaption>Manual p. 74: 1 unplug the antenna cables, 2 remove the screw, 3 slide the card out. Do it backwards.</figcaption></figure>
+    <table>
+      <tr><th>Screws</th><th>Type</th><th>Color</th><th>Torque</th></tr>
+      <tr><td>1</td><td>M2 × L2.2 mm, big-hat</td><td>Black</td><td>0.181 Nm (1.85 kgf-cm)</td></tr>
+    </table>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s13"><div>
+    <h3>Plug in the two antenna cables</h3>
+    <div class="callout stop"><b>Orange cable → main connector.</b> <b>Blue cable → auxiliary connector.</b> This is the manual's own rule for installing.</div>
+    <p>Press each connector straight down until it clicks. Do not angle it.</p>
+  </div></div>
+</section>
+
+<section id="close">
+  <h2><span class="n">5</span>Close up</h2>
+  <p class="sub">Reverse the order of section 2.</p>
+
+  <div class="step"><input type="checkbox" id="s14"><div>
+    <h3>Reinstall the battery</h3>
+    <p>Set it in place, install the <b>6 × M2 × L4.5 mm</b> silver screws, plug the battery connector back in, and lay the tape flap down.</p>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s15"><div>
+    <h3>Check the cables</h3>
+    <p>Before the cover goes on, look for any antenna cable that is pinched, lifted out of a guide, or lying across a screw hole.</p>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s16"><div>
+    <h3>Refit the base cover and SIM</h3>
+    <p>Snap the cover down along all edges, tighten the 5 captive screws, then insert the nano-SIM back into its tray.</p>
+  </div></div>
+</section>
+
+<section id="check">
+  <h2><span class="n">6</span>Verify</h2>
+  <p class="sub">Not from the manual. General steps. <span class="tag gen">general</span></p>
+
+  <div class="step"><input type="checkbox" id="s17"><div>
+    <h3>Power on</h3>
+    <p>Plug in the AC adapter. On ThinkPads the disabled built-in battery re-enables once AC power is connected, which may take a moment before the machine will start.</p>
+  </div></div>
+
+  <div class="step"><input type="checkbox" id="s18"><div>
+    <h3>Check that Windows sees the modem</h3>
+    <ul>
+      <li>Device Manager → Network adapters / Modems for the WWAN device.</li>
+      <li>Settings → Network &amp; Internet → Cellular. Install the modem vendor's driver if it is missing.</li>
+      <li>Check ThinkPad Setup (F1) → Config → Network for any WWAN setting that is turned off.</li>
+    </ul>
+    <p class="note">If the card is not detected, power down and reseat it. If Setup shows a "unsupported" error, the card is not on Lenovo's allowed list for this machine.</p>
+  </div></div>
+</section>
+
+<section id="ref">
+  <h2>Manual pages</h2>
+  <p class="sub">Full-size pages from the HMM. Click to enlarge.</p>
+  <div class="step" style="grid-template-columns:1fr">
+    <div class="ref">
+      <a href="img/full/p78.png" data-lb>p. 70 prep</a> ·
+      <a href="img/full/p80.png" data-lb>p. 72 base cover</a> ·
+      <a href="img/full/p82.png" data-lb>p. 74 WWAN card</a> ·
+      <a href="img/full/p84.png" data-lb>p. 76 battery</a> ·
+      <a href="img/full/p91.png" data-lb>p. 83 antennas</a> ·
+      <a href="img/full/p92.png" data-lb>p. 84 antenna routing</a>
+    </div>
+  </div>
+</section>
+
+<footer>Source: Lenovo <i>X1 Yoga Gen 5 and X1 Carbon Gen 8 Hardware Maintenance Manual</i>. Work at your own risk. Fine electronics, small screws.</footer>
+</div>
+
+<div class="lb" id="lb"><img alt=""></div>
+
+<script>
+(function(){
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.step input[type=checkbox]'));
+  var fill = document.getElementById('fill'), count = document.getElementById('count');
+  var KEY = 'x1c8-wwan-progress';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
+  function save(o){ try { localStorage.setItem(KEY, JSON.stringify(o)); } catch(e){} }
+  var state = load();
+  function render(){
+    var d = 0;
+    boxes.forEach(function(b){
+      b.checked = !!state[b.id];
+      b.closest('.step').classList.toggle('done', b.checked);
+      if (b.checked) d++;
+    });
+    fill.style.width = (boxes.length ? d / boxes.length * 100 : 0) + '%';
+    count.textContent = d + ' / ' + boxes.length;
+  }
+  boxes.forEach(function(b){
+    b.addEventListener('change', function(){ state[b.id] = b.checked; save(state); render(); });
+  });
+  document.getElementById('reset').addEventListener('click', function(){ state = {}; save(state); render(); });
+  render();
+
+  var lb = document.getElementById('lb'), lbi = lb.querySelector('img');
+  function open(src){ lbi.src = src; lb.classList.add('on'); }
+  document.querySelectorAll('figure img').forEach(function(i){ i.addEventListener('click', function(){ open(i.src); }); });
+  document.querySelectorAll('a[data-lb]').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); open(a.href); }); });
+  lb.addEventListener('click', function(){ lb.classList.remove('on'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.classList.remove('on'); });
+})();
+</script>
+</body>
+</html>
