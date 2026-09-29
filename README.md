@@ -1,4 +1,4 @@
-# X1 Carbon Gen 8 (20U9-001NUS): WWAN retrofit notes
+﻿# X1 Carbon Gen 8 (20U9-001NUS): WWAN retrofit notes
 
 Retrofitting a Fibocom L860-GL cellular modem into a ThinkPad X1 Carbon Gen 8 (types 20U9 / 20UA) that was built without WWAN.
 
@@ -35,8 +35,29 @@ Open questions and risks:
 ## Contents
 
 - `site/index.html`: step-by-step install guide (open in a browser). Checklist progress is saved in the browser.
-- `X1C8_WWAN_install_manual_pages.pdf`: pages from Lenovo's *X1 Yoga Gen 5 and X1 Carbon Gen 8 Hardware Maintenance Manual* (printed pp. 69-76, 83-84), as images.
-- `site/img/`: figure crops and full-page images used by the site.
+- `scripts/make-images.ps1`: renders the manual figures for the site from Lenovo's PDF (see below).
+- `site/img/`: figure crops and full-page images used by the site. Generated, not in the repo.
+
+## Getting the figures (site images)
+
+The guide uses figures from Lenovo's *X1 Yoga Gen 5 and X1 Carbon Gen 8 Hardware Maintenance Manual*. They are Lenovo's, so they are not in this repo. Generate them locally from your own copy of the PDF:
+
+1. Download `x1_yoga_gen5_x1_carbon_gen8_hmm_en.pdf` from Lenovo's support site (111 pages).
+2. Save it as `manual.pdf` in the repo root, or note its path.
+3. From the repo root, in Windows PowerShell or a terminal:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\make-images.ps1
+   # or with the PDF somewhere else:
+   powershell -ExecutionPolicy Bypass -File scripts\make-images.ps1 -Pdf C:\path\to\manual.pdf
+   ```
+
+4. Open `site/index.html`. The script writes 7 figure crops to `site/img/` and 10 full pages to `site/img/full/` (used when you click a figure).
+
+Notes:
+- Windows 10/11 only. It uses the built-in Windows PDF renderer, so nothing to install.
+- Pages render at 200 dpi (1700 x 2200). Crop boxes are fixed pixel coordinates for this edition of the manual, whose printed page 71 is PDF page 79. A different edition may need `-PageOffset` and the crop table in the script adjusted.
+- `manual.pdf`, other PDFs and `site/img/` are gitignored.
 
 ## Manual reference (printed page numbers)
 
@@ -50,4 +71,5 @@ The manual shows removal only. The site writes installation as the reverse, and 
 
 ## Copyright
 
-The Lenovo manual PDF and the page/figure images in `site/img/` are Lenovo's and are deliberately not in this repo (gitignored). Keep local copies to view the site with figures.
+The Lenovo manual PDF and the page/figure images in `site/img/` are Lenovo's and are deliberately not in this repo (gitignored). Use `scripts/make-images.ps1` to generate the images locally.
+
